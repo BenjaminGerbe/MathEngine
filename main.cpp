@@ -8,6 +8,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "tiny_obj_loader.cc"
+#include "MathLib.cpp"
 
 GLShader g_triangleShader;
 unsigned int texId;
@@ -41,6 +42,11 @@ void Initialize(){
     g_triangleShader.LoadFragmentShader("Assets/triangle.fs");
     g_triangleShader.Create();
 
+    Matrix<3,3> m;
+    Complex comp(1,1);
+    Complex comp2(9,2);
+
+    std::cout<<comp2 * comp << std::endl;
 
     glGenTextures(1,&texId);
 
