@@ -26,6 +26,8 @@ float lightDirection[3] {
         1.0f,1.0f,1.0f
 };
 
+int step = 0;
+
 bool ret = tinyobj::LoadObj(&attrib,&shapes,&materials,&err,inputfile.c_str());
 
 struct vertex{
@@ -42,11 +44,25 @@ void Initialize(){
     g_triangleShader.LoadFragmentShader("Assets/triangle.fs");
     g_triangleShader.Create();
 
-    Matrix<3,3> m;
+    int t[2*2] =
+    {
+    10,5,
+    9,4
+    };
+    int t2[2*2] =
+    {
+    6,5,
+    3,1
+    };
+
+    Matrix<2,2> m1(t);
+    Matrix<2,2> m2(t2);
+
+    multMatrice(m1,m2).display();
+
+
     Complex comp(1,1);
     Complex comp2(9,2);
-
-    std::cout<<comp2 * comp << std::endl;
 
     glGenTextures(1,&texId);
 
@@ -103,11 +119,10 @@ void Initialize(){
                 }
 
                 vert.push_back({
+
                     {float(vx),float(vy),float(vz)},
                     {nx,ny,nz},
                     {tx,ty}});
-
-
 
             }
 
@@ -125,6 +140,7 @@ void Terminate(){
 
 }
 
+
 void Render(GLFWwindow* window)
 {
     int width, height;
@@ -137,10 +153,21 @@ void Render(GLFWwindow* window)
     glClearColor(0.0f, 1.0f, 1.0f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
     float time = glfwGetTime();
 
     auto triangleProgram = g_triangleShader.GetProgram();
     glUseProgram(triangleProgram);
+
+
+    float temp[3] {0,1,0};
+
+    Quaternion quaternion(temp,time * 30);
+
+   // std::cout  << time << std::endl;
+
+  // std::cout <<  quaternion.getRotationMatrix() << std::endl;
+
 
 
     const float stride = sizeof(vertex);
@@ -174,33 +201,51 @@ void Render(GLFWwindow* window)
     glUniform1f(loc_tex,0);
 
 
-    float rotationMatrix[16] = {
-            cosf(time),0.0f,-sinf(time),0.0f,
+    float positionMatrix[16] = {
+            1,0.0f,0,0.0f,
             0.0,1.0f,0.0f,0.0f,
-            sinf(time),0.0f,cosf(time),0.0f,
+            0,0.0f,1,0.0f,
             0.0,-.5f,-2.f,1.0f
     };
 
-    float rotationMatrix2[16] = {
-            cosf(time),-sinf(time),0.0,0.0f,
-            sinf(time),cosf(time),0.0,0.0f,
-            0.0,0.0f,1.0f,0.0f,
-            0.0,0,0,1.0f
+
+    float RotationCamera[16] = {
+            cosf(time),0,-sinf(time),0.0f,
+            0,1.0f,0,0.0f,
+            sinf(time),0,cosf(time),0.0f,
+            0.0,0.0,0,1.0f
     };
 
 
+    float TranslationMatrix[16] = {
+            1,0,0,0,
+            0,1,0,0,
+            0,0,1,0,
+            0.0,0.0,-10.0,1.0f
+    };
+
+
+
     const auto loc_rotz_mat = glGetUniformLocation(
-            triangleProgram,"u_rotationMatrix"
+            triangleProgram,"u_positionMatrix"
             );
+  //  std::cout << quaternion.getRotationMatrix() << std::endl;
+    glUniformMatrix4fv(loc_rotz_mat,1,GL_FALSE,quaternion.getRotationMatrix().getTab());
 
-    glUniformMatrix4fv(loc_rotz_mat,1,GL_FALSE,rotationMatrix);
 
-    const auto loc_rotz_matz = glGetUniformLocation(
-            triangleProgram,"u_rotationMatrixZ"
+
+    const auto loc_rot_cam = glGetUniformLocation(
+            triangleProgram,"u_rotCamera"
     );
 
-    glUniformMatrix4fv(loc_rotz_mat,1,GL_FALSE,rotationMatrix);
-    glUniformMatrix4fv(loc_rotz_matz,1,GL_FALSE,rotationMatrix2);
+    glUniformMatrix4fv(loc_rot_cam,1,GL_FALSE,RotationCamera);
+
+
+    const auto translationModele = glGetUniformLocation(
+            triangleProgram,"u_translation_mat"
+    );
+
+    glUniformMatrix4fv(translationModele,1,GL_FALSE,TranslationMatrix);
 
 
     // Projetion matrice
@@ -213,9 +258,10 @@ void Render(GLFWwindow* window)
     float projectionMatrix[16] = {
             cot/aspectRatio, 0.f,0.f,0.f,
             0.f,cot,0.f,0.f,
-            0.f,0.f,-zFar/(zFar-zNear),-1.f,
+            0.f,0.f,-zFar/(zFar-zNear),-1,
             0.f,0.f,-zFar*zNear/(zFar-zNear),0.f,
     };
+
 
 
 
@@ -255,6 +301,10 @@ int main(void)
         return -1;
     }
 
+
+
+
+
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
@@ -265,6 +315,9 @@ int main(void)
     }
 
     Initialize();
+
+
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {

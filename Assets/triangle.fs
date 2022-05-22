@@ -10,6 +10,8 @@ uniform vec3 u_lightDirection;
 uniform float u_time;
 
 
+
+
 void main(void){
 
     vec3 lightDirection = vec3(3,1,2);
