@@ -40,8 +40,8 @@ std::vector<vertex> vert;
 
 
 void Initialize(){
-    g_triangleShader.LoadVertexShader("Assets/triangle.vs");
-    g_triangleShader.LoadFragmentShader("Assets/triangle.fs");
+    g_triangleShader.LoadVertexShader("Assets/triangleV.shader");
+    g_triangleShader.LoadFragmentShader("Assets/triangleF.shader");
     g_triangleShader.Create();
 
     int t[2*2] =
@@ -149,6 +149,7 @@ void Render(GLFWwindow* window)
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
+
     glViewport(0, 0, width, height);
     glClearColor(0.0f, 1.0f, 1.0f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -217,11 +218,13 @@ void Render(GLFWwindow* window)
     };
 
 
+
+
     float TranslationMatrix[16] = {
             1,0,0,0,
             0,1,0,0,
             0,0,1,0,
-            0.0,0.0,-10.0,1.0f
+            0.0,-.5,-5.0,1.0f
     };
 
 
@@ -229,8 +232,12 @@ void Render(GLFWwindow* window)
     const auto loc_rotz_mat = glGetUniformLocation(
             triangleProgram,"u_positionMatrix"
             );
-  //  std::cout << quaternion.getRotationMatrix() << std::endl;
+
     glUniformMatrix4fv(loc_rotz_mat,1,GL_FALSE,quaternion.getRotationMatrix().getTab());
+
+    std::cout << "start =====================" << std::endl;
+    std::cout << " basic translation "<< quaternion << std::endl;
+    std::cout <<"translated quaternion" << getQuaternion(quaternion.getRotationMatrix()) << std::endl;
 
 
 
@@ -315,7 +322,6 @@ int main(void)
     }
 
     Initialize();
-
 
 
     /* Loop until the user closes the window */

@@ -1,3 +1,5 @@
+class Quaternion;
+
 template<int N,int M>
 
 class Matrix{
@@ -41,8 +43,12 @@ public:
         return this->tab;
     }
 
-    void setAt(int i,int j,int v){
-        tab[(i*N)+j] = v;
+    float setAt(int i,int j,int v){
+       return  tab[(i*N)+j] = v;
+    }
+
+    float getAt(int i,int j){
+        return tab[(i*N)+j] ;
     }
 
     void display (){
@@ -59,7 +65,11 @@ public:
         return tab[(i*N)+j];
     }
 
+
+
+
 };
+
 
 
 class Quaternion{
@@ -75,8 +85,12 @@ class Quaternion{
 
     Quaternion(float axe[3],float angle){
 
-        this->setAngle_Axis(axe,angle);
+        angle = (angle/2) * 3.14159 / 180.0;
 
+        tab[0] = axe[0] * sinf(angle);
+        tab[1] = axe[1] * sinf(angle);
+        tab[2] =  axe[2]* sinf(angle);
+        tab[3] = cosf(angle);
 
     }
 
@@ -86,15 +100,6 @@ class Quaternion{
         }
     }
 
-    void setAngle_Axis(const float *axe, float angle){
-        angle = (angle/2) * 3.14159 / 180.0;
-
-        tab[0] = axe[0] * sinf(angle);
-        tab[1] = axe[1] * sinf(angle);
-        tab[2] =  axe[2]* sinf(angle);
-        tab[3] = cosf(angle);
-
-    }
 
     float* getTab(){
         return tab;
@@ -138,8 +143,6 @@ class Quaternion{
 
         Quaternion q(this->getQutrnormalized());
 
-        std::cout << q.tab[0] <<" " << q.tab[1] <<" " << q.tab[2] <<" " << q.tab[3]   << std::endl;
-
         float a = q.tab[3];
         float b = q.tab[0];
         float c = q.tab[1];
@@ -155,23 +158,6 @@ class Quaternion{
         Matrix<4,4> m(tmp);
 
         return  m;
-    }
-
-
-    Matrix<4,4> getMatrix(){
-
-        float f[4*4] {
-             this->tab[3], this->tab[0], this->tab[1], this->tab[2],
-            -this->tab[0], this->tab[3], this->tab[2],-this->tab[1],
-            -this->tab[1],-this->tab[2], this->tab[3], this->tab[0],
-            -this->tab[2], this->tab[1],-this->tab[0], this->tab[3]
-        };
-
-
-
-        Matrix<4,4>m(f);
-
-        return m;
     }
 
 
@@ -211,9 +197,6 @@ class Quaternion{
 
 
 };
-
-
-
 
 
 
@@ -314,7 +297,18 @@ std::ostream& operator<<(std::ostream& os, Matrix<N,M> _m){
 std::ostream& operator<<(std::ostream& os, Quaternion q){
     float * tab = &q.getTab()[0];
 
-    return os << "x : " << tab[0] << " y : " << tab[1] << " z : " << tab[2] << " w : " <<tab[3] << std::endl;
+    return os << " x : " << tab[0] << " y : " << tab[1] << " z : " << tab[2] << " w : " <<tab[3] << std::endl;
 }
 
+
+
+Quaternion getQuaternion(Matrix<4,4> mat) {
+    float w = sqrtf(1.0 +  mat.getAt(0,0) + mat.getAt(1,1) + mat.getAt(2,2) )/ 2.0;
+    float w4 = (4.0 * w);
+    float x = ( mat.getAt(2,1) - mat.getAt(1,2) )/ w4;
+    float y = ( mat.getAt(0,2) - mat.getAt(2,0) )/ w4;
+    float z = ( mat.getAt(1,0) - mat.getAt(0,1) )/ w4;
+    Quaternion t(x,-y,z,w);
+    return  t;
+}
 

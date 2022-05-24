@@ -22,6 +22,5 @@ void main(void){
     lightning = clamp(lightning,0.0,1.0);
     color = (lightning + .6) * color;
 
-
     gl_FragColor =  color;
 }
