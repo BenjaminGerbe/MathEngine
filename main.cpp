@@ -8,7 +8,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "tiny_obj_loader.cc"
-#include "MathLib.cpp"
+#include "MathLib/MathLib.cpp"
 
 GLShader g_triangleShader;
 unsigned int texId;
@@ -23,7 +23,7 @@ std::string warn;
 std::string err;
 
 float lightDirection[3] {
-        1.0f,1.0f,1.0f
+        3.0f,2.0f,1.0f
 };
 
 int step = 0;
@@ -163,7 +163,10 @@ void Render(GLFWwindow* window)
 
     float temp[3] {0,1,0};
 
-    Quaternion quaternion(temp,time * 30);
+    Quaternion quaternion(temp,(time * 30.0f));
+
+
+
 
    // std::cout  << time << std::endl;
 
@@ -194,7 +197,9 @@ void Render(GLFWwindow* window)
     glEnableVertexAttribArray(loc_uv);
 
 
-    auto loc_lightDirection = glGetAttribLocation(triangleProgram,"u_lightDirection");
+
+
+    auto loc_lightDirection = glGetUniformLocation(triangleProgram,"u_lightDirection");
     glUniform3fv(loc_lightDirection,1,lightDirection);
 
 
@@ -214,9 +219,8 @@ void Render(GLFWwindow* window)
             cosf(time),0,-sinf(time),0.0f,
             0,1.0f,0,0.0f,
             sinf(time),0,cosf(time),0.0f,
-            0.0,0.0,0,1.0f
+            0.0,-.5,-2.0,1.0f
     };
-
 
 
 
@@ -224,7 +228,7 @@ void Render(GLFWwindow* window)
             1,0,0,0,
             0,1,0,0,
             0,0,1,0,
-            0.0,-.5,-5.0,1.0f
+            0.0,0,0,1.0f
     };
 
 
@@ -234,10 +238,6 @@ void Render(GLFWwindow* window)
             );
 
     glUniformMatrix4fv(loc_rotz_mat,1,GL_FALSE,quaternion.getRotationMatrix().getTab());
-
-    std::cout << "start =====================" << std::endl;
-    std::cout << " basic translation "<< quaternion << std::endl;
-    std::cout <<"translated quaternion" << getQuaternion(quaternion.getRotationMatrix()) << std::endl;
 
 
 
@@ -285,6 +285,12 @@ void Render(GLFWwindow* window)
     const auto loc_time = glGetUniformLocation(triangleProgram,"u_time");
     glUniform1f(loc_time,time);
 
+    const auto qtr_rot = glGetUniformLocation(triangleProgram,"u_quaternionRotation");
+
+    glUniform4fv(qtr_rot,1,&quaternion.getTab()[0]);
+
+    const auto conj_rot = glGetUniformLocation(triangleProgram,"u_conjQuaternionRotation");
+    glUniform4fv(conj_rot,1,&quaternion.conj()[0]);
 
     glDrawArrays(GL_TRIANGLES,0,vert.size());
 

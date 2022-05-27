@@ -1,3 +1,5 @@
+
+// QUATERNION
 class Quaternion;
 
 template<int N,int M>
@@ -65,9 +67,6 @@ public:
         return tab[(i*N)+j];
     }
 
-
-
-
 };
 
 
@@ -119,7 +118,8 @@ class Quaternion{
 
 
     float* conj(){
-        static float tmp[4] {-this->tab[0],-this->tab[1],-this->tab[2],this->tab[3]};
+
+        float  *tmp = new float[4] {-tab[0] , -tab[1] , -tab[2] , tab[3]  };
         return tmp;
     }
 
