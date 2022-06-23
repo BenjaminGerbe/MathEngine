@@ -3,7 +3,6 @@
 class Quaternion;
 
 template<int N,int M>
-
 class Matrix{
     float tab[N*M];
 
@@ -66,14 +65,14 @@ public:
     float operator()(int i,int j ){
         return tab[(i*N)+j];
     }
-
 };
 
 
 
 class Quaternion{
     float tab[4]{};
-
+    float*  norme;
+    float* conjTab;
     public:
     Quaternion(float x,float y,float z,float w){
         tab[0] = x;
@@ -111,17 +110,33 @@ class Quaternion{
     float* getQutrnormalized(){
         float norm = this->getNorm();
 
-        float  *tmp = new float[4] {tab[0] / norm, tab[1] / norm, tab[2] / norm, tab[3] / norm };
+        this->norme = new float[4] {tab[0] / norm, tab[1] / norm, tab[2] / norm, tab[3] / norm };
 
-        return tmp;
+        return this->norme;
+    }
+
+
+
+    void normalize(){
+        float* tb = this->getQutrnormalized();
+        this->tab[0] = tb[0];
+        this->tab[1] = tb[1];
+        this->tab[2] = tb[2];
+
     }
 
 
     float* conj(){
 
-        float  *tmp = new float[4] {-tab[0] , -tab[1] , -tab[2] , tab[3]  };
-        return tmp;
+        this->conjTab = new float[4] {-tab[0] , -tab[1] , -tab[2] , tab[3]  };
+        return  this->conjTab;
     }
+
+    void QuaternionDeconstru(){
+        delete norme;
+        delete conjTab;
+    }
+
 
 
     float dot(Quaternion qtr){
@@ -159,6 +174,7 @@ class Quaternion{
 
         return  m;
     }
+
 
 
     Quaternion operator*=(Quaternion qtr){
@@ -203,7 +219,6 @@ class Quaternion{
 template<int N, int M,int O,int P>
 Matrix<N,P> multMatrice(Matrix<N,M> m1,Matrix<O,P> m2){
     Matrix<N,P> m;
-    m.display();
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
@@ -214,70 +229,11 @@ Matrix<N,P> multMatrice(Matrix<N,M> m1,Matrix<O,P> m2){
             }
         }
     }
+
     return m;
 }
 
 
-
-class Complex{
-
-    int r; // reel
-    int i; // imaginaire
-
-public :
-
-    Complex(int _r,int _i) :r(_r),i(_i) {}
-
-    int GetReel(){
-        return this->r;
-    }
-
-    int GetImaginary(){
-        return this->i;
-    }
-
-    int GetReel() const {
-        return this->r;
-    }
-
-    const int GetImaginary() const{
-        return this->i;
-    }
-
-    Complex operator+=(const Complex _c){
-        Complex c(this->r + _c.GetReel(),this->i + _c.GetImaginary());
-        return c;
-    }
-
-    Complex operator+(const Complex _c){
-        return *this+=_c;
-    }
-
-    Complex operator-=(const Complex _c){
-        Complex c(this->r - _c.GetReel(),this->i - _c.GetImaginary());
-        return c;
-    }
-
-    Complex operator-(const Complex _c){
-        return *this-=_c;
-    }
-
-
-    Complex operator*=(const Complex _c){
-        Complex c(this->r * _c.GetReel() - this->r * _c.GetReel(),i*_c.GetReel() + r* _c.GetImaginary() );
-        return c;
-    }
-
-    Complex operator*(const Complex _c){
-        return *this*=_c;
-    }
-
-
-};
-
-std::ostream& operator<<(std::ostream& os, Complex _c){
-    return os << _c.GetReel() << " | "<<_c.GetImaginary() << std::endl;
-}
 
 template<int N,int M>
 std::ostream& operator<<(std::ostream& os, Matrix<N,M> _m){
